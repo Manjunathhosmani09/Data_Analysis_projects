@@ -27,12 +27,32 @@ WHERE customer_id IS NULL OR customer_id = '' OR
       total_sale IS NULL OR total_sale = '';
 
 -- Remove duplicates
-CREATE TABLE retail_2 AS
-SELECT *,
-       ROW_NUMBER() OVER(PARTITION BY transaction_id, sale_date, sale_time, customer_id, gender, age, category, quantity, price_per_unit, cogs, total_sale) AS dupe_rank
+-- I WILL CREATE NEW TABLE AND INSERT RANKS TO IDENNTIFY DUPLICATES
+CREATE TABLE `retail_2` (
+  `transaction_id` int DEFAULT NULL,
+  `sale_date` date DEFAULT NULL,
+  `sale_time` time DEFAULT NULL,
+  `customer_id` int DEFAULT NULL,
+  `gender` text,
+  `age` int DEFAULT NULL,
+  `category` text,
+  `quantity` int DEFAULT NULL,
+  `price_per_unit` int DEFAULT NULL,
+  `cogs` int DEFAULT NULL,
+  `total_sale` int DEFAULT NULL,
+  `dupe_rank` int 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO retail_2  
+SELECT *,ROW_NUMBER() OVER(PARTITION BY transaction_id, sale_date, sale_time, customer_id, gender, age, category, quantity, price_per_unit, cogs, total_sale
+) as dupe_rank
 FROM retail;
 
-DELETE FROM retail_2 WHERE dupe_rank > 1;
+
+DELETE 
+FROM retail_2 
+WHERE dupe_rank >1;
+
 
 -- Electronics sales extremes
 SELECT MAX(total_sale) AS max_sale, MIN(total_sale) AS min_sale
